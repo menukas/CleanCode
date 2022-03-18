@@ -10,18 +10,21 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.amandrykin.cleancode.R
+import com.amandrykin.cleancode.app.App
 import com.amandrykin.cleancode.data.repository.UserRepositoryImpl
 import com.amandrykin.cleancode.data.storage.sharedprefs.SharedPrefUserStorage
 import com.amandrykin.cleancode.domain.models.SaveUserNameParam
 import com.amandrykin.cleancode.domain.models.UserName
 import com.amandrykin.cleancode.domain.usecase.GetUserNameUseCase
 import com.amandrykin.cleancode.domain.usecase.SaveUserNameUseCase
+import javax.inject.Inject
 
 // data, domain скопированы в отдельные модули
 
 class MainActivity : AppCompatActivity() {
 
-
+    @Inject
+    lateinit var vmFactory: MainViewModelFactory
 
     private lateinit var vm: MainViewModel
 
@@ -29,8 +32,11 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        (applicationContext as App).appComponent.inject(this)
+
         Log.e("AAA", "Activity created")
-        vm = ViewModelProvider(this, MainViewModelFactory(this))
+
+        vm = ViewModelProvider(this, vmFactory)
             .get(MainViewModel::class.java)
 
         val dataTextView = findViewById<TextView>(R.id.dataTextView)

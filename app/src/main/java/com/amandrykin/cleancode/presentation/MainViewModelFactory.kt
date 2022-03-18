@@ -1,21 +1,14 @@
 package com.amandrykin.cleancode.presentation
 
-import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.amandrykin.cleancode.data.repository.UserRepositoryImpl
-import com.amandrykin.cleancode.data.storage.sharedprefs.SharedPrefUserStorage
 import com.amandrykin.cleancode.domain.usecase.GetUserNameUseCase
 import com.amandrykin.cleancode.domain.usecase.SaveUserNameUseCase
 
-class MainViewModelFactory(context: Context) : ViewModelProvider.Factory {
-
-    private val userRepository by lazy(LazyThreadSafetyMode.NONE) {
-        UserRepositoryImpl(userStorage = SharedPrefUserStorage(context = context)) }
-    private val getUserNameUseCase by lazy(LazyThreadSafetyMode.NONE) {
-        GetUserNameUseCase(userRepository = userRepository) }
-    private val saveUserNameUseCase by lazy(LazyThreadSafetyMode.NONE) {
-        SaveUserNameUseCase(userRepository = userRepository) }
+class MainViewModelFactory(
+    val getUserNameUseCase: GetUserNameUseCase,
+    val saveUserNameUseCase: SaveUserNameUseCase
+    ) : ViewModelProvider.Factory {
 
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         return MainViewModel(
