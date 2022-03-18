@@ -2,9 +2,13 @@ package com.amandrykin.cleancode.presentation
 
 import android.app.Activity
 import android.os.Bundle
+import android.util.Log
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
+import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
 import com.amandrykin.cleancode.R
 import com.amandrykin.cleancode.data.repository.UserRepositoryImpl
 import com.amandrykin.cleancode.data.storage.sharedprefs.SharedPrefUserStorage
@@ -15,36 +19,45 @@ import com.amandrykin.cleancode.domain.usecase.SaveUserNameUseCase
 
 // data, domain скопированы в отдельные модули
 
-class MainActivity : Activity() {
+class MainActivity : AppCompatActivity() {
 
-    private val userRepository by lazy(LazyThreadSafetyMode.NONE) {
-        UserRepositoryImpl(userStorage = SharedPrefUserStorage(context = applicationContext)) }
-    private val getUserNameUseCase by lazy(LazyThreadSafetyMode.NONE) {
-        GetUserNameUseCase(userRepository = userRepository) }
-    private val saveUserNameUseCase by lazy(LazyThreadSafetyMode.NONE) {
-        SaveUserNameUseCase(userRepository = userRepository) }
+
+
+    private lateinit var vm: MainViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        Log.e("AAA", "Activity created")
+        vm = ViewModelProvider(this, MainViewModelFactory(this))
+            .get(MainViewModel::class.java)
 
         val dataTextView = findViewById<TextView>(R.id.dataTextView)
         val dataEditView = findViewById<EditText>(R.id.dataEditText)
         val sendButton = findViewById<Button>(R.id.sendButton)
         val recieveButton = findViewById<Button>(R.id.recieveButton)
 
+        // здесь идет подписка на изменение данных
+        //1-й способ обращения через метод get
+//        vm.getResultLive().observe(this, { text ->
+//            dataTextView.text = text
+//        })
+
+        //2-й способ обращения через переменную resultLive: LiveData
+        vm.resultLive.observe(this, { text ->
+            dataTextView.text = text
+        })
+
         sendButton.setOnClickListener {
             // Клик по кнопке Save data
             val text = dataEditView.text.toString()
-            val params = SaveUserNameParam(name = text)
-            val result: Boolean = saveUserNameUseCase.execute(param = params)
-            dataTextView.text = "Save result = $result"
+            vm.save(text)
         }
 
         recieveButton.setOnClickListener {
             // Клик по кнопке Get data
-            val userName: UserName = getUserNameUseCase.execute()
-            dataTextView.text = "${userName.firstName} ${userName.lastName}"
+            vm.load()
         }
     }
 }
