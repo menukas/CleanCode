@@ -6,6 +6,7 @@ import android.util.Log
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -16,22 +17,21 @@ import com.amandrykin.cleancode.domain.models.SaveUserNameParam
 import com.amandrykin.cleancode.domain.models.UserName
 import com.amandrykin.cleancode.domain.usecase.GetUserNameUseCase
 import com.amandrykin.cleancode.domain.usecase.SaveUserNameUseCase
+import dagger.hilt.EntryPoint
+import dagger.hilt.android.AndroidEntryPoint
 
 // data, domain скопированы в отдельные модули
 
+@AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
 
-
-
-    private lateinit var vm: MainViewModel
+    private val vm: MainViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
         Log.e("AAA", "Activity created")
-        vm = ViewModelProvider(this, MainViewModelFactory(this))
-            .get(MainViewModel::class.java)
 
         val dataTextView = findViewById<TextView>(R.id.dataTextView)
         val dataEditView = findViewById<EditText>(R.id.dataEditText)
